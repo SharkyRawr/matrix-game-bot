@@ -9,13 +9,16 @@ from nio import (
     RoomMessageText
 )
 
+from config import Config
+cfg = Config()
+
 def callback_room_message_text(room, event):
     logger.info("Message received for room {} | {}: {}".format(
             room.display_name, room.user_name(event.sender), event.body
         ))
 
 async def main():
-    client = AsyncClient('https://shark.pm', '@gamebot:shark.pm')
+    client = AsyncClient(cfg.get('homeserver'), cfg.get('userid'))
 
     await client.login('somepass')
 
