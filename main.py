@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 from nio import (
     AsyncClient,
-    RoomMessageText
+    RoomMessageText,
 )
 
 from config import Config
@@ -16,6 +16,15 @@ def callback_room_message_text(room, event):
     logger.info("Message received for room {} | {}: {}".format(
             room.display_name, room.user_name(event.sender), event.body
         ))
+
+    ## Plug in game modules here
+    if room.is_group:
+        # ad-hoc, direct chat
+        pass
+    else:
+        # group chat
+        pass
+
 
 async def main():
     client = AsyncClient(cfg.get('homeserver'), cfg.get('userid'))
