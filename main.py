@@ -26,8 +26,9 @@ async def callback_room_message_text(room, event):
         ))
     
     # so apparently this API isn't implemented yet in the async client :(
-    # and this static Api call doesn't seem to work :((
-    Api.room_read_markers(client.access_token, room.room_id, event.event_id, event.event_id)
+    r = Api.room_read_markers(client.access_token, room.room_id, event.event_id, event.event_id)
+    await client.send(*r)
+    # but this works!
 
     ## Plug in game modules here
     if room.is_group:
