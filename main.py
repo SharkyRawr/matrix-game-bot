@@ -3,30 +3,47 @@
 import asyncio
 import logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+logger.addHandler(ch)
 
 from nio import (
+    Api,
     AsyncClient,
-    RoomMessageText
+    RoomMessageText,
+    InviteEvent
 )
 
 from config import Config
 cfg = Config()
 
-def callback_room_message_text(room, event):
+client = AsyncClient(cfg.get('homeserver'), cfg.get('userid'))
+
+async def callback_room_message_text(room, event):
     logger.info("Message received for room {} | {}: {}".format(
             room.display_name, room.user_name(event.sender), event.body
         ))
+    
+    # so apparently this API isn't implemented yet in the async client :(
+    # and this static Api call doesn't seem to work :((
+    Api.room_read_markers(client.access_token, room.room_id, event.event_id, event.event_id)
+
+async def callback_room_invite(source, sender):
+    print(source)
+    print(sender)
+    await client.join(source.room_id)
 
 async def main():
-    client = AsyncClient(cfg.get('homeserver'), cfg.get('userid'))
 
-    await client.login('somepass')
+    await client.login(cfg.get('password'))
 
     if client.logged_in is False:
         raise Exception("Login failed.")
 
     ## Do more stuff here
     client.add_event_callback(callback_room_message_text, RoomMessageText)
+    client.add_event_callback(callback_room_invite, InviteEvent)
 
     await client.sync_forever(timeout=30000)
 
